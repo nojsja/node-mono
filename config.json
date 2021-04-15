@@ -1,0 +1,27 @@
+{
+  "module": "node-mono",
+  "paths": {
+    "node-runtime": "./packages/node-runtime",
+    "node-app-datalake": "./packages/node-app-datalake",
+    "node-common": "./packages/node-common"
+  },
+  "modules": {
+    "main": {
+      "name": "node-runtime",
+      "version": "master"
+    },
+    "common": {
+      "name": "node-common",
+      "version": "master"
+    },
+    "app": {
+      "registry": [
+        {
+          "name": "node-app-datalake",
+          "version": "master"
+        }
+      ]
+    }
+    
+  }
+}
