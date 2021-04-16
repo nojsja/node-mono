@@ -3,7 +3,7 @@
   "paths": {
     "node-runtime": "./packages/node-runtime",
     "node-app-datalake": "./packages/node-app-datalake",
-    "node-common": "./packages/node-common"
+    "node-common-libs": "./packages/node-common-libs"
   },
   "modules": {
     "main": {
@@ -11,7 +11,7 @@
       "version": "master"
     },
     "common": {
-      "name": "node-common",
+      "name": "node-common-libs",
       "version": "master"
     },
     "app": {

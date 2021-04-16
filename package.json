@@ -1,12 +1,21 @@
 {
   "name": "node-mono",
+  "bin": {
+    "node-mono-cli": "./bin/node-mono-cli.js"
+  },
   "private": true,
+  "workspaces": ["packages/*"],
   "scripts": {
-    "setup": "lerna bootstrap",
-    "start": "lerna run start",
-    "build": "lerna run build"
+    "setup": "yarn install; yarn unlink-registry; yarn link-registry; yarn link-all;",
+    "unlink-registry": "yarn workspaces run unlink",
+    "link-registry": "yarn workspaces run link",
+    "link-all": "yarn workspaces run link-deps",
+    "reset": "yarn unlink-registry; yarn workspaces run reset;",
+    "start": "yarn workspaces run start",
+    "build": "yarn workspaces run build"
   },
   "devDependencies": {
-    "lerna": "^4.0.0"
+    "@vercel/ncc": "^0.28.3",
+    "rimraf": "^3.0.2"
   }
 }
