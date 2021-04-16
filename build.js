@@ -34,8 +34,6 @@ const func = {
     config.registry.forEach(async(item) => {
       if (item.mode !== 'remote') {
         await execRealtime(`yarn link ${item.name}`, { cwd: __dirname });
-      } else {
-        await execRealtime(`yarn unlink ${item.name}`, { cwd: __dirname });
       }
     });
     console_log(`\nlink-deps finishied!`);
