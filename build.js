@@ -48,9 +48,7 @@ const func = {
     console_log(`\nclean finishied!`);
   },
   'rm-modules': async (env) => {
-    if (fs.existsSync('./node_modules')) {
-      removeDirSync('./node_modules');
-    }
+    removeDirSync('./node_modules');
   },
   /* build command usage */
   '--help': () => {
