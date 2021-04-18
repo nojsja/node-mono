@@ -1,8 +1,5 @@
 {
   "name": "node-mono",
-  "bin": {
-    "node-mono-cli": "./bin/node-mono-cli.js"
-  },
   "private": true,
   "workspaces": ["packages/*"],
   "scripts": {

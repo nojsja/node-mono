@@ -1,7 +1,10 @@
-const config = require('./config.json');
+const path = require('path');
+const config = require(path.join(__dirname, './config.json'));
+
+console.log(__dirname);
 
 module.exports = {
-  "entry": "./index.js",
+  "entry": "./src/index.js",
   "-o": "dist",
   "-e": [
     ...config.registry.map(item => item.name),

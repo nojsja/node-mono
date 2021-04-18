@@ -5,6 +5,7 @@
     "node-app-datalake": "./packages/node-app-datalake",
     "node-common-libs": "./packages/node-common-libs"
   },
+  "registry": [],
   "modules": {
     "main": {
       "name": "node-runtime",
