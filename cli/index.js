@@ -23,12 +23,17 @@ const buildEnvChecker = new BuildEnvChecker(envObj);
    * @param --help | -h 查看帮助信息
    */
 const func = {
+
   'test': function() {
     copyDirSync('./view/dist', './service/dist');
   },
 
+
   /* build for all platform */
   'build-all': Interceptor.use( async function() {
+
+    console_log(`\n >>>> Start building the whole project in \n [${envObj.path}] <<<< \n`, 'heavyGree');
+
     let command = `ncc build ${envObj.nccConf.entry}`;
 
     command += Object.keys(envObj.nccConf).reduce((total, current) => {
@@ -45,30 +50,49 @@ const func = {
 
     await execRealtime(command, { cwd: envObj.path });
 
+    console_log(`\n >>>> Build the whole project successfully in \n [${envObj.path}] <<<< \n`);
+
   }, [buildEnvChecker]) ,
 
+
   'link-deps': Interceptor.use(async function (env) {
+
+    console_log(`\n >>>> Start linking local dependencies in \n [${envObj.path}] <<<< \n`, 'heavyGree');
 
     envObj.config.registry.forEach(async(item) => {
       if (item.mode !== 'remote') {
         await execRealtime(`yarn link ${item.name}`, { cwd: envObj.path });
       }
     });
-    console_log(`\nlink-deps finishied!`);
+
+    console_log(`\n >>>> Successfully link the project dependencies in \n [${envObj.path}] <<<< \n`, 'blue');
 
   }, [buildEnvChecker]),
 
-  'clean': async function (env) {
+
+  'clean': Interceptor.use(async function (env) {
+
+    console_log(`\n >>>> Start cleaning up dist resources in \n [${envObj.path}] <<<< \n`, 'heavyGree');
+
     if (fs.existsSync('./dist')) {
       removeDirSync('./dist');
     }
-    await execRealtime('git checkout -- dist', { cwd: envObj.path });
-    console_log(`\nclean finishied!`);
-  },
 
-  'rm-modules': async function (env) {
+    console_log(`\n >>>> Successfully cleaned up dist resources in \n [${envObj.path}] <<<< \n`);
+
+  }, [buildEnvChecker]),
+
+
+  'rm-modules': Interceptor.use(async function (env) {
+
+    console_log(`\n >>>> Start removing node_modules in \n [${envObj.path}] <<<< \n`, 'heavyGree');
+
     removeDirSync('./node_modules');
-  },
+
+    console_log(`\n >>>> Successfully remove node_modules in \n [${envObj.path}] <<<< \n`);
+
+  }, [buildEnvChecker]),
+
 
   /* build command usage */
   '--help': function() {
@@ -99,6 +123,7 @@ const func = {
   '-h': function () {
     this['--help']();
   },
+
 
   '--path': function (p) {
     if (!fs.existsSync(p))

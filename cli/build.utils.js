@@ -185,8 +185,30 @@ exports.BuildEnvChecker = class BuildEnvChecker extends exports.Interceptor {
     * @return {[Any]} [any]
     */
   pre = () => {
-    if (!this.env || !this.env.config || !this.env.nccConf) {
-      exports.console_log(`The params '--path' should be provided firstly!`, 'white', 'red');
+    if (this.env) {
+      if (!this.env.config && !this.env.nccConf) {
+        const pwd = process.env.PWD;
+
+        try {
+          this.env.nccConf = require(path.join(pwd, './ncc.config.js'));
+          this.env.config = require(path.join(pwd, './config.json'));
+        } catch (error) {
+          exports.console_log(`The params '--path' should be provided firstly!`, 'white', 'red');
+          process.exit(1);
+        }
+
+        this.env.path = pwd;
+
+      } else if (this.env.config && this.env.nccConf) {
+
+        return 0;
+        
+      } else {
+        exports.console_log(`The params '--path' should be provided firstly!`, 'white', 'red');
+        process.exit(1);
+      }
+    } else {
+      exports.console_log(`The buildEnvChecker should be initialized firstly!`, 'white', 'red');
       process.exit(1);
     }
   }
