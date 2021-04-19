@@ -24,12 +24,7 @@ const buildEnvChecker = new BuildEnvChecker(envObj);
    */
 const func = {
 
-  'test': function() {
-    copyDirSync('./view/dist', './service/dist');
-  },
-
-
-  /* build for all platform */
+  /* check env file and build dist resources with ncc. */
   'build-all': Interceptor.use( async function() {
 
     console_log(`\n >>>> Start building the whole project in \n [${envObj.path}] <<<< \n`, 'heavyGree');
@@ -55,6 +50,7 @@ const func = {
   }, [buildEnvChecker]) ,
 
 
+  /* link all local dependencies with yarn link */
   'link-deps': Interceptor.use(async function (env) {
 
     console_log(`\n >>>> Start linking local dependencies in \n [${envObj.path}] <<<< \n`, 'heavyGree');
@@ -70,6 +66,7 @@ const func = {
   }, [buildEnvChecker]),
 
 
+  /* clean dist directory */
   'clean': Interceptor.use(async function (env) {
 
     console_log(`\n >>>> Start cleaning up dist resources in \n [${envObj.path}] <<<< \n`, 'heavyGree');
@@ -83,6 +80,7 @@ const func = {
   }, [buildEnvChecker]),
 
 
+  /* remove node_modules directory */
   'rm-modules': Interceptor.use(async function (env) {
 
     console_log(`\n >>>> Start removing node_modules in \n [${envObj.path}] <<<< \n`, 'heavyGree');
@@ -98,25 +96,20 @@ const func = {
   '--help': function() {
     console_log('\
     \n\
-    description: build command for RhinoDisk.\n\
-    command: node build.js [action] [config]\n\
+    * description: node-mono-cli - auto command cli for node-mono project.\n\
+    * command: node-mono-cli [config] [action] \n\
     |\n\
+    |____ config: [--path | -p ] => the path to target build project.\n\
     |\n\
-    |______ param: [--help | -h ] => show usage info.\n\
-    |______ param: [build-win   ] [--edit | --office] => build package for windows, the default conf file is ./service/config.json.\n\
-    |______ param: [build-linux ] [--edit | --office] => build package for linux, the default conf file is ./service/config.json\n\
-    |______ param: [build-mac   ] [--edit | --office] => build package for mac, the default conf file is ./service/config.json\n\
-    |______ param: [build-all   ] [--edit | --office] => build package for all platform, the default conf file is ./service/config.json\n\
-    |______ param: [clean-build ] => clean build directory after build\n\
+    |____ action: [--help | -h ] => show usage info.\n\
+    |____ action: [build-all   ] => start building package.\n\
+    |____ action: [clean       ] => clean dist directory.\n\
+    |____ action: [link-deps   ] => link all local dependencies with yarn link.\n\
     |\n\
-    |______ example1: node build.js build-win\n\
-    |______ example2: node build.js build-linux\n\
-    |______ example3: node build.js build-mac\n\
-    |______ example4: node build.js build-all\n\
-    |______ example5: node build.js build-win --edit\n\
-    |______ example6: node build.js build-win --office\n\
-    |______ example7: node build.js --help\n\
-    |______ example8: node build.js clean-build\n\
+    |____ example1: node-mono-cli rm-modules\n\
+    |____ example2: node-mono-cli link-deps\n\
+    |____ example3: node-mono-cli build-all\n\
+    |____ example4: node-mono-cli clean\n\
     \n\
     ')
   },
