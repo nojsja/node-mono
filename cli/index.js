@@ -20,12 +20,13 @@ const buildEnvChecker = new BuildEnvChecker(envObj);
 /*
    * 函数调用list
    * @param build-all 执行打包
+   * @param link-deps
    * @param --help | -h 查看帮助信息
    */
 const func = {
 
   /* check env file and build dist resources with ncc. */
-  'build-all': Interceptor.use( async function() {
+  'build:all': Interceptor.use( async function() {
 
     console_log(`\n >>>> Start building the whole project in \n [${envObj.path}] <<<< \n`, 'heavyGree');
 
@@ -51,7 +52,7 @@ const func = {
 
 
   /* link all local dependencies with yarn link */
-  'link-deps': Interceptor.use(async function (env) {
+  'link:deps': Interceptor.use(async function (env) {
 
     console_log(`\n >>>> Start linking local dependencies in \n [${envObj.path}] <<<< \n`, 'heavyGree');
 

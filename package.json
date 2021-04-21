@@ -3,11 +3,11 @@
   "private": true,
   "workspaces": ["packages/*"],
   "scripts": {
-    "setup": "yarn install; yarn unlink-registry; yarn link-registry; yarn link-all;",
-    "unlink-registry": "yarn workspaces run unlink",
-    "link-registry": "yarn workspaces run link",
-    "link-all": "yarn workspaces run link-deps",
-    "reset": "yarn unlink-registry; yarn workspaces run reset;",
+    "setup": "yarn install; yarn registry:unlink; yarn registry:link; yarn link:all;",
+    "registry:unlink": "yarn workspaces run unlink",
+    "registry:link": "yarn workspaces run link",
+    "link:all": "yarn workspaces run link:deps",
+    "reset": "yarn registry:unlink; yarn workspaces run reset;",
     "start": "yarn workspaces run start",
     "build": "yarn workspaces run build"
   },

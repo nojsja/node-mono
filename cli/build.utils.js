@@ -144,16 +144,15 @@ exports.Interceptor = class Interceptor {
   }
 
   /**
-    * use [静态函数，将拦截器和目标函数组装起来]
-    * @author nojsja
-    * @param  {[Function]} func [目标函数]
-    * @param  {[Array]} pre [预处理器]
-    * @param  {[Array]} after [后置处理器]
-    * @return {[Function]} [组装好的函数]
-    */
-  static use = function(func, pre=[], after=[]) {
+   * 
+   * @param {Function} func 静态函数，将拦截器和目标函数组装起来
+   * @param {Array} pre 预处理器
+   * @param {Array} after 后置处理器
+   * @returns {Function} 组装好的函数
+   */
+  static use = function (func, pre = [], after = []) {
 
-    return function(...args) {
+    return function (...args) {
       pre.forEach(p => {
         p.pre.apply(this, args);
       });
