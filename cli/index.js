@@ -25,10 +25,10 @@ const buildEnvChecker = new BuildEnvChecker(envObj);
    */
 const func = {
 
-  /* check env file and build dist resources with ncc. */
-  'build:all': Interceptor.use( async function() {
+  /* start building sub-packages */
+  'build:subs': Interceptor.use( async function() {
 
-    console_log(`\n >>>> Start building the whole project in \n [${envObj.path}] <<<< \n`, 'heavyGree');
+    console_log(`\n >>>> Start building the sub project in \n [${envObj.path}] <<<< \n`, 'heavyGree');
 
     let command = `ncc build ${envObj.nccConf.entry}`;
 
@@ -46,7 +46,57 @@ const func = {
 
     await execRealtime(command, { cwd: envObj.path });
 
-    console_log(`\n >>>> Build the whole project successfully in \n [${envObj.path}] <<<< \n`);
+    console_log(`\n >>>> Build the sub project successfully in \n [${envObj.path}] <<<< \n`);
+
+  }, [buildEnvChecker]) ,
+
+  /* start building entry-point package */
+  'build:entry': Interceptor.use( async function() {
+
+    console_log(`\n >>>> Start building the entry project in \n [${envObj.path}] <<<< \n`, 'heavyGree');
+
+    let command = `ncc build ${envObj.nccConf.entry}`;
+    console.log(`${envObj.path}/package.json`);
+    const packageConf = require(`${envObj.path}/package.json`);
+
+    // [01] 组装打包命令
+    command += Object.keys(envObj.nccConf).reduce((total, current) => {
+      if (current === 'entry') return total;
+
+      total += ' ';
+      total +=
+        envObj.nccConf[current] instanceof Array ?
+        envObj.nccConf[current].map(item => `${current} ${item}`).join(' ') :
+        `${current} ${envObj.nccConf[current]} `;
+
+      return total;
+    }, ' ');
+
+    // [02] 执行打包
+    await execRealtime(command, { cwd: envObj.path });
+
+    // [03] 生成子应用组合配置文件
+    fs.writeFileSync(`${envObj.path}/dist/package.json`, JSON.stringify({
+      "name": packageConf.name,
+      "version": packageConf.version,
+      "author": packageConf.author,
+      "main": "index.js",
+      "private": true,
+      "scripts": packageConf.scripts,
+      "dependencies": envObj.config.registry.reduce((total, current) => {
+        total[current.name] = `file:${path.join('../', current.path, 'dist')}`;
+        return total;
+      }, {}),
+      "devDependencies": {},
+      "engines": {
+        "node": ">=12.16.1"
+      }
+    }, null, 2));
+
+    // [04] 开始执行子应用组合
+    await execRealtime(`yarn install`, { cwd: `${envObj.path}/dist` });
+
+    console_log(`\n >>>> Build the entry project successfully in \n [${envObj.path}] <<<< \n`);
 
   }, [buildEnvChecker]) ,
 
@@ -103,14 +153,17 @@ const func = {
     |____ config: [--path | -p ] => the path to target build project.\n\
     |\n\
     |____ action: [--help | -h ] => show usage info.\n\
-    |____ action: [build-all   ] => start building package.\n\
+    |____ action: [build:subs   ] => start building sub-packages.\n\
+    |____ action: [build:entry   ] => start building entry-point package.\n\
+    |____ action: [link:deps   ] => link all local dependencies with yarn link.\n\
     |____ action: [clean       ] => clean dist directory.\n\
-    |____ action: [link-deps   ] => link all local dependencies with yarn link.\n\
+    |____ action: [rm-modules       ] => rm node_modules directory.\n\
     |\n\
     |____ example1: node-mono-cli rm-modules\n\
-    |____ example2: node-mono-cli link-deps\n\
-    |____ example3: node-mono-cli build-all\n\
-    |____ example4: node-mono-cli clean\n\
+    |____ example2: node-mono-cli link:deps\n\
+    |____ example3: node-mono-cli build:subs\n\
+    |____ example4: node-mono-cli build:entry\n\
+    |____ example5: node-mono-cli clean\n\
     \n\
     ')
   },

@@ -40,12 +40,11 @@
 
 "@node-mono/node-app-datalake@git+https://gitee.com/nojsja/node-app-datalake.git#master":
   version "1.0.0"
-  resolved "git+https://gitee.com/nojsja/node-app-datalake.git#4147d77236c679967ef32f89d96d188578c99036"
+  resolved "git+https://gitee.com/nojsja/node-app-datalake.git#77815bf8670160d7f32da0c89d7d31cf486df598"
   dependencies:
     "@node-mono/node-common-libs" "git+https://gitee.com/nojsja/node-common.git#master"
     express "~4.16.0"
     formidable "^1.2.1"
-    webpack-node-externals "^2.5.2"
 
 "@node-mono/node-common-libs@git+https://gitee.com/nojsja/node-common.git#master":
   version "1.0.0"
@@ -3626,11 +3625,6 @@ vxx@^1.2.0:
     semver "^5.0.1"
     shimmer "^1.0.0"
     uuid "^3.0.1"
-
-webpack-node-externals@^2.5.2:
-  version "2.5.2"
-  resolved "https://registry.yarnpkg.com/webpack-node-externals/-/webpack-node-externals-2.5.2.tgz#178e017a24fec6015bc9e672c77958a6afac861d"
-  integrity sha512-aHdl/y2N7PW2Sx7K+r3AxpJO+aDMcYzMQd60Qxefq3+EwhewSbTBqNumOsCE1JsCUNoyfGj5465N0sSf6hc/5w==
 
 which-boxed-primitive@^1.0.2:
   version "1.0.2"

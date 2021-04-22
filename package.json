@@ -9,7 +9,7 @@
     "link:all": "yarn workspaces run link:deps",
     "reset": "yarn registry:unlink; yarn workspaces run reset;",
     "start": "yarn workspaces run start",
-    "build": "yarn workspaces run build"
+    "build:all": "yarn workspaces run build; yarn workspaces run build:entry;"
   },
   "devDependencies": {
     "@vercel/ncc": "^0.28.3",
