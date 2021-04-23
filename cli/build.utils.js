@@ -86,7 +86,10 @@ exports.exec = (_command, _params=[], _options={}) => {
     const command = `${_command} ${params}`;
     let data = '', error = '';
     
-    console.log(params, options, command);
+    console.log(
+      `Now excuting command ... [${command}] with params - [${params ? JSON.stringify(params) : ''}] and options - [${options ? JSON.stringify(options) : ''}]
+      `
+    )
   
     return new Promise((resolve, reject) => {
       const result = child.exec(command, options);
@@ -211,4 +214,27 @@ exports.BuildEnvChecker = class BuildEnvChecker extends exports.Interceptor {
       process.exit(1);
     }
   }
+}
+
+/**
+ * 
+ * @param {Object} envObj 构建环境对象
+ * @returns 构建命令字符
+ */
+exports.getNccCommand = function getNccCommand(envObj) {
+  let command = `ncc build ${envObj.nccConf.entry}`;
+
+  command += Object.keys(envObj.nccConf).reduce((total, current) => {
+    if (current === 'entry') return total;
+
+    total += ' ';
+    total +=
+      envObj.nccConf[current] instanceof Array ?
+        envObj.nccConf[current].map(item => `${current} ${item}`).join(' ') :
+        `${current} ${envObj.nccConf[current]} `;
+
+    return total;
+  }, ' ');
+
+  return command;
 }

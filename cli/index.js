@@ -4,7 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const {
   copyDirSync, exec, execRealtime, console_log, removeDirSync,
-  Interceptor, BuildEnvChecker
+  Interceptor, BuildEnvChecker, getNccCommand
 } = require('./build.utils');
 
 const envObj = {
@@ -19,30 +19,29 @@ const buildEnvChecker = new BuildEnvChecker(envObj);
 
 /*
    * 函数调用list
-   * @param build-all 执行打包
-   * @param link-deps
+   * @param not-inherited 未继承方法
+   * @param build:subs 执行子项目打包
+   * @param build:entry 执行 entry 子项目打包
+   * @param link:deps 建立本地仓库之间的软链接
+   * @param clean 清理 dist 目录
+   * @param --path | -p 指定执行目录，创建公用编译环境对象
    * @param --help | -h 查看帮助信息
    */
 const func = {
+
+  /* empty action in package.json */
+  'not-inherited': Interceptor.use(function() {
+
+    console_log(`\n >>>> Not inherited action in [${envObj.path}] <<<< \n`, 'yellow');
+
+  }, [buildEnvChecker]),
 
   /* start building sub-packages */
   'build:subs': Interceptor.use( async function() {
 
     console_log(`\n >>>> Start building the sub project in \n [${envObj.path}] <<<< \n`, 'heavyGree');
 
-    let command = `ncc build ${envObj.nccConf.entry}`;
-
-    command += Object.keys(envObj.nccConf).reduce((total, current) => {
-      if (current === 'entry') return total;
-
-      total += ' ';
-      total +=
-        envObj.nccConf[current] instanceof Array ?
-        envObj.nccConf[current].map(item => `${current} ${item}`).join(' ') :
-        `${current} ${envObj.nccConf[current]} `;
-
-      return total;
-    }, ' ');
+    const command = getNccCommand(envObj);
 
     await execRealtime(command, { cwd: envObj.path });
 
@@ -55,43 +54,27 @@ const func = {
 
     console_log(`\n >>>> Start building the entry project in \n [${envObj.path}] <<<< \n`, 'heavyGree');
 
-    let command = `ncc build ${envObj.nccConf.entry}`;
-    console.log(`${envObj.path}/package.json`);
+    // [01] 组装 ncc 命令
+    const command = getNccCommand(envObj);
     const packageConf = require(`${envObj.path}/package.json`);
-
-    // [01] 组装打包命令
-    command += Object.keys(envObj.nccConf).reduce((total, current) => {
-      if (current === 'entry') return total;
-
-      total += ' ';
-      total +=
-        envObj.nccConf[current] instanceof Array ?
-        envObj.nccConf[current].map(item => `${current} ${item}`).join(' ') :
-        `${current} ${envObj.nccConf[current]} `;
-
-      return total;
-    }, ' ');
 
     // [02] 执行打包
     await execRealtime(command, { cwd: envObj.path });
 
     // [03] 生成子应用组合配置文件
-    fs.writeFileSync(`${envObj.path}/dist/package.json`, JSON.stringify({
-      "name": packageConf.name,
-      "version": packageConf.version,
-      "author": packageConf.author,
-      "main": "index.js",
-      "private": true,
-      "scripts": packageConf.scripts,
-      "dependencies": envObj.config.registry.reduce((total, current) => {
-        total[current.name] = `file:${path.join('../', current.path, 'dist')}`;
-        return total;
-      }, {}),
-      "devDependencies": {},
-      "engines": {
-        "node": ">=12.16.1"
-      }
-    }, null, 2));
+    fs.writeFileSync(
+      `${envObj.path}/dist/package.json`,
+      JSON.stringify(Object.assign(packageConf, {
+        "scripts": {
+          "start": "node index.js"
+        },
+        "dependencies": envObj.config.registry.reduce((total, current) => {
+          total[current.name] = `file:${path.join('../', current.path, 'dist')}`;
+          return total;
+        }, {}),
+        "devDependencies": {}
+      }), null, 2)
+    );
 
     // [04] 开始执行子应用组合
     await execRealtime(`yarn install`, { cwd: `${envObj.path}/dist` });
@@ -194,7 +177,8 @@ function Main() {
   let args;
 
   params.forEach((key, i) => {
-    if (func[key] && (typeof func[key] === 'function')) indexArray.push(i);
+    if (func[key] && (typeof func[key] === 'function'))
+      indexArray.push(i);
   });
 
   indexArray.forEach((index, i) => {

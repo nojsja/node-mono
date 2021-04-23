@@ -1,18 +1,22 @@
 {
   "name": "node-mono",
   "private": true,
-  "workspaces": ["packages/*"],
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "setup": "yarn install; yarn registry:unlink; yarn registry:link; yarn link:all;",
+    "registry:cli": "cd cli; npm link;",
     "registry:unlink": "yarn workspaces run unlink",
     "registry:link": "yarn workspaces run link",
     "link:all": "yarn workspaces run link:deps",
     "reset": "yarn registry:unlink; yarn workspaces run reset;",
     "start": "yarn workspaces run start",
-    "build:all": "yarn workspaces run build; yarn workspaces run build:entry;"
+    "build:all": "yarn wsrun --stages --exclude-missing build; yarn wsrun --exclude-missing build:entry;"
   },
   "devDependencies": {
     "@vercel/ncc": "^0.28.3",
-    "rimraf": "^3.0.2"
+    "rimraf": "^3.0.2",
+    "wsrun": "^5.2.4"
   }
 }
