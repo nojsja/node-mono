@@ -2,6 +2,8 @@
 
 const path = require('path');
 const fs = require('fs');
+const readline = require('readline');
+
 const {
   copyDirSync, exec, execRealtime, console_log, removeDirSync,
   Interceptor, BuildEnvChecker, getNccCommand
@@ -20,6 +22,7 @@ const buildEnvChecker = new BuildEnvChecker(envObj);
 /*
    * 函数调用list
    * @param not-inherited 未继承方法
+   * @param create:sub 使用空模板创建新的子项目
    * @param build:subs 执行子项目打包
    * @param build:entry 执行 entry 子项目打包
    * @param link:deps 建立本地仓库之间的软链接
@@ -28,6 +31,27 @@ const buildEnvChecker = new BuildEnvChecker(envObj);
    * @param --help | -h 查看帮助信息
    */
 const func = {
+
+  /* create new sub-app with template */
+  'create:sub': function() {
+    let name;
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout
+    });
+
+    rl.question('Please input sub-app name: ', (answer) => {
+      name = answer;
+      rl.close();
+
+      console_log(`\n >>>> Start creating the new sub project - [packages/${name}] <<<< \n`, 'heavyGree');
+
+      copyDirSync(path.join(__dirname, 'templates/sub-app'), path.join(__dirname, `../packages/${answer}`));
+  
+      console_log(`\n >>>> Create the new sub project - [packages/${name}] successfully <<<< \n`);
+    });
+    
+  },
 
   /* empty action in package.json */
   'not-inherited': Interceptor.use(function() {
@@ -41,9 +65,45 @@ const func = {
 
     console_log(`\n >>>> Start building the sub project in \n [${envObj.path}] <<<< \n`, 'heavyGree');
 
+    // [01] 清理环境并组装 ncc 命令
     const command = getNccCommand(envObj);
+    const packageConf = require(`${envObj.path}/package.json`);
+    const remoteImport = envObj.config.registry.filter(item => item.mode === 'remote');
 
+    if (fs.existsSync(`${envObj.path}/dist`)) {
+      await fs.promises.rmdir(`${envObj.path}/dist`, { recursive: true });
+    }
+
+    // [02] 执行打包
     await execRealtime(command, { cwd: envObj.path });
+
+    if (remoteImport.length) {
+
+      if (!fs.existsSync(`${envObj.path}/dist/node_modules`)) {
+        fs.mkdirSync(`${envObj.path}/dist/node_modules`);
+      }
+
+      // [04] 开始执行子应用组合
+      await Promise.allSettled(remoteImport.map(item => {
+        const gitAddress = packageConf.dependencies[item.name];
+        const gitUrl = gitAddress.replace(/(#.*)|(git\+)/g, '');
+        const branch = gitAddress.split('#')[1] || 'master';
+
+        return execRealtime(
+          `git clone ${gitUrl} ${item.name} -b ${branch}`,
+          { cwd: `${envObj.path}/dist/node_modules` }
+        );
+      }));
+
+      // [05] 提取子应用 dist 文件
+      await Promise.allSettled(remoteImport.map(async(item) => {
+        await fs.promises.rename(`${envObj.path}/dist/node_modules/${item.name}`, `${envObj.path}/dist/node_modules/${item.name}2`);
+        copyDirSync(`${envObj.path}/dist/node_modules/${item.name}2/dist`, `${envObj.path}/dist/node_modules/${item.name}`);
+        await fs.promises.rmdir(`${envObj.path}/dist/node_modules/${item.name}2`, {
+          recursive: true,
+        });
+      }));
+    }
 
     console_log(`\n >>>> Build the sub project successfully in \n [${envObj.path}] <<<< \n`);
 
@@ -54,15 +114,19 @@ const func = {
 
     console_log(`\n >>>> Start building the entry project in \n [${envObj.path}] <<<< \n`, 'heavyGree');
 
-    // [01] 组装 ncc 命令
+    // [01] 清理环境并组装 ncc 命令
     const command = getNccCommand(envObj);
     const packageConf = require(`${envObj.path}/package.json`);
+
+    if (fs.existsSync(`${envObj.path}/dist`)) {
+      await fs.promises.rmdir(`${envObj.path}/dist`, { recursive: true });
+    }
 
     // [02] 执行打包
     await execRealtime(command, { cwd: envObj.path });
 
     // [03] 生成子应用组合配置文件
-    fs.writeFileSync(
+    await fs.promises.writeFile(
       `${envObj.path}/dist/package.json`,
       JSON.stringify(Object.assign(packageConf, {
         "scripts": {

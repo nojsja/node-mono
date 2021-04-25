@@ -1,0 +1,36 @@
+{
+  "name": "@node-mono/sub-app",
+  "version": "1.0.0",
+  "author": "NoJsJa",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "start": "cross-env NODE_ENV=development node index.js",
+    "start:prod": "cross-env NODE_ENV=production node index.js",
+    "build": "yarn clean; cross-env NODE_ENV=production node-mono-cli build:subs",
+    "link": "yarn link",
+    "unlink": "yarn unlink",
+    "link:deps": "node-mono-cli link:deps",
+    "clean": "node-mono-cli clean",
+    "reset": "node-mono-cli rm-modules"
+  },
+  "dependencies": {
+    "@node-mono/node-common-libs": "git+https://gitee.com/nojsja/node-common.git#master",
+    "express": "~4.16.0",
+    "formidable": "^1.2.1"
+  },
+  "devDependencies": {
+    "@vercel/ncc": "^0.28.3",
+    "concurrently": "^3.6.1",
+    "cross-env": "^5.2.0",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jsx-a11y": "^6.1.2",
+    "event-stream": "^4.0.1",
+    "rimraf": "^3.0.2"
+  },
+  "peerDependencies": {},
+  "engines": {
+    "node": ">=12.16.1"
+  }
+}

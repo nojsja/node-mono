@@ -68,6 +68,19 @@
     moment "^2.22.1"
     xml2js "^0.4.22"
 
+"@node-mono/node-common-libs@git+https://gitee.com/nojsja/node-common.git#v1.0.0":
+  version "1.0.0"
+  resolved "git+https://gitee.com/nojsja/node-common.git#00260efca8c9b07bfe2914727073dd7241686b01"
+  dependencies:
+    aws4 "^1.8.0"
+    axios "^0.18.1"
+    crypto-js "^4.0.0"
+    express "~4.16.0"
+    fast-xml-parser "^3.12.20"
+    formidable "^1.2.1"
+    moment "^2.22.1"
+    xml2js "^0.4.22"
+
 "@types/istanbul-lib-coverage@*", "@types/istanbul-lib-coverage@^2.0.0":
   version "2.0.3"
   resolved "https://registry.npm.taobao.org/@types/istanbul-lib-coverage/download/@types/istanbul-lib-coverage-2.0.3.tgz#4ba8ddb720221f432e443bd5f9117fd22cfd4762"

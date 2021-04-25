@@ -1,0 +1,10 @@
+{
+  "module": "@node-mono/node-app-datalake",
+  "registry": [
+    {
+      "name": "@node-mono/node-common-libs",
+      "path": "../node-common",
+      "mode": "remote"
+    }
+  ]
+}
