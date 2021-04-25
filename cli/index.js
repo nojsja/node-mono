@@ -70,6 +70,8 @@ const func = {
     const packageConf = require(`${envObj.path}/package.json`);
     const remoteImport = envObj.config.registry.filter(item => item.mode === 'remote');
 
+    await execRealtime('git pull', { cwd: envObj.path });
+
     if (fs.existsSync(`${envObj.path}/dist`)) {
       await fs.promises.rmdir(`${envObj.path}/dist`, { recursive: true });
     }
@@ -117,6 +119,8 @@ const func = {
     // [01] 清理环境并组装 ncc 命令
     const command = getNccCommand(envObj);
     const packageConf = require(`${envObj.path}/package.json`);
+
+    await execRealtime('git pull', { cwd: envObj.path });
 
     if (fs.existsSync(`${envObj.path}/dist`)) {
       await fs.promises.rmdir(`${envObj.path}/dist`, { recursive: true });

@@ -5,14 +5,17 @@
     "packages/*"
   ],
   "scripts": {
-    "setup": "yarn install; yarn registry:unlink; yarn registry:link; yarn link:all;",
+    "start": "yarn wsrun --exclude-missing start",
+    "start:entry": "yarn wsrun --exclude-missing start:entry;",
+    "setup": "yarn install; yarn registry:cli; yarn registry:unlink; yarn registry:link; yarn link:all;",
     "registry:cli": "cd cli; npm link;",
     "registry:unlink": "yarn workspaces run unlink",
     "registry:link": "yarn workspaces run link",
     "link:all": "yarn workspaces run link:deps",
     "reset": "yarn registry:unlink; yarn workspaces run reset;",
-    "start": "yarn workspaces run start",
-    "build:all": "yarn wsrun --stages --exclude-missing build; yarn wsrun --exclude-missing build:entry;"
+    "build:subs": "yarn wsrun --stages --exclude-missing build",
+    "build:entry": "yarn wsrun --exclude-missing build:entry;",
+    "build:all": "yarn reset; yarn setup; yarn build:subs; yarn build:entry"
   },
   "devDependencies": {
     "@vercel/ncc": "^0.28.3",
